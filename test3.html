@@ -426,7 +426,6 @@ function calcDiscount_old(total){
     lines.push(`本次總計：$${data.grand}`);
 
     lines.push(`折抵金額（滿$1000折$100）：$${data.discount}`);
-    lines.push(`折抵後應付：$${data.payable}`);
     return lines.join('\n');
   }
   function collectOrderData() {
@@ -477,7 +476,6 @@ function calcDiscount_old(total){
 
 
     grandEl.textContent = data.grand;
-    discountInfoEl.textContent = '目前折抵：$' + data.discount;
 
     const nextNeed = (Math.floor(data.grand/1000) + 1) * 1000 - data.grand;
 
