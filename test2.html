@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>杜蕾斯滿千活動計算機</title>
+<style>
+  /* 保留原樣式 */
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC", sans-serif; padding: 10px; background:#fff; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+  th { background-color: #f4f4f4; }
+  input[type="number"], input[type="text"] { padding: 6px 8px; font-size: 1rem; }
+  input[type="number"] { width: 90px; }
+  .row { display:flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 8px 0; }
+  .order-card { background: #fff; border: 1px solid #ccc; border-radius: 12px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,.05); }
+  .order-summary { margin-top: 10px; display: grid; grid-template-columns: 1fr auto; gap: 6px; font-size: 14px; }
+  .order-discount { margin-top: 8px; font-weight: 700; color: green; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+<h2>杜蕾斯滿千活動計算機</h2>
+
+<div class="row">
+  <label>客戶名稱：<input type="text" id="customer" placeholder="例如：大里 昱昭"></label>
+  <label>備註：<input type="text" id="note" placeholder="例如：急！／星期四到貨"></label>
+  <label>點擊產品品名會顯示圖片，點擊圖片會收回</label>
+</div>
+
+<table>
+  <thead><tr><th>品名</th><th>現金價</th><th>數量</th><th>小計</th></tr></thead>
+  <tbody id="product-table">
+    <tr><td>幻隱3枚</td><td>168</td><td><input type="number" min="0" value="0" data-price="168"></td><td class="subtotal">0</td></tr>
+    <tr><td>幻隱8枚</td><td>352</td><td><input type="number" min="0" value="0" data-price="352"></td><td class="subtotal">0</td></tr>
+  </tbody>
+</table>
+
+<div id="order-card" class="order-card" style="margin-top:14px;">
+  <div style="font-weight:800;font-size:18px;">訂單確認單</div>
+  <div>客戶：<span id="meta-customer">—</span>　備註：<span id="meta-note">—</span></div>
+  <table class="order-table" style="width:100%;margin-top:8px;">
+    <thead><tr><th>品名</th><th>數量</th><th>單價</th><th>小計</th></tr></thead>
+    <tbody id="order-items"><tr><td colspan="4" style="text-align:center;color:#666;">尚未選購任何品項</td></tr></tbody>
+  </table>
+  <div class="order-summary">
+    <div class="label">加總金額：</div><div class="value" id="sum-final">0 元</div>
+    <div class="label">折抵金額（滿$1000折$100）：</div><div class="value" id="sum-discount">0 元</div>
+  </div>
+  <div class="order-discount" id="discount-banner">目前折抵：$0　距離第一次折$100還差：1000元</div>
+</div>
+
+<div style="margin-top:16px;">
+  <button id="clear-btn">重新輸入</button>
+  <button id="share-all-btn">生成訂單並分享</button>
+</div>
+
+<script>
+const sumFinal = document.getElementById('sum-final');
+const sumDiscount = document.getElementById('sum-discount');
+const discountBanner = document.getElementById('discount-banner');
+const orderItems = document.getElementById('order-items');
+const customer = document.getElementById('customer');
+const note = document.getElementById('note');
+
+function calcDiscount(total){ return total >= 1000 ? 100 : 0; }
+
+function updateTotals(){
+  const rows = document.querySelectorAll('#product-table tr');
+  let total = 0;
+  rows.forEach(tr=>{
+    const price = parseFloat(tr.querySelector('td:nth-child(2)').textContent);
+    const qty = parseInt(tr.querySelector('input').value||0);
+    const sub = price*qty;
+    tr.querySelector('.subtotal').textContent = sub;
+    total += sub;
+  });
+  const discount = calcDiscount(total);
+  sumFinal.textContent = total + ' 元';
+  sumDiscount.textContent = discount + ' 元';
+  const diff = Math.max(0, 1000 - total);
+  discountBanner.textContent = `目前折抵：$${discount}　距離第一次折$100還差：${diff}元`;
+
+  // 訂單明細更新
+  orderItems.innerHTML = '';
+  const items = Array.from(rows).filter(r=>parseInt(r.querySelector('input').value)>0);
+  if(items.length===0){
+    orderItems.innerHTML='<tr><td colspan="4" style="text-align:center;color:#666;">尚未選購任何品項</td></tr>';
+  } else {
+    items.forEach(tr=>{
+      const name = tr.querySelector('td:first-child').textContent;
+      const price = tr.querySelector('td:nth-child(2)').textContent;
+      const qty = tr.querySelector('input').value;
+      const sub = tr.querySelector('.subtotal').textContent;
+      orderItems.innerHTML += `<tr><td>${name}</td><td>${qty}</td><td>${price}</td><td>${sub}</td></tr>`;
+    });
+  }
+  document.getElementById('meta-customer').textContent = customer.value || '—';
+  document.getElementById('meta-note').textContent = note.value || '—';
+}
+
+document.querySelectorAll('input[type="number"]').forEach(i=>{
+  i.addEventListener('input',updateTotals);
+  i.addEventListener('focus',()=>{if(i.value==='0')i.value='';});
+  i.addEventListener('blur',()=>{if(i.value==='')i.value='0';});
+});
+customer.addEventListener('input',updateTotals);
+note.addEventListener('input',updateTotals);
+
+document.getElementById('clear-btn').addEventListener('click',()=>{
+  document.querySelectorAll('input[type="number"]').forEach(i=>i.value='0');
+  customer.value=''; note.value='';
+  updateTotals();
+});
+
+document.getElementById('share-all-btn').addEventListener('click',()=>{
+  alert('生成訂單圖片功能保持不變，可根據需求加回');
+});
+updateTotals();
+</script>
+</body>
+</html>
