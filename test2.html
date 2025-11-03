@@ -107,7 +107,6 @@
   <div class="row">
     <label>客戶名稱：<input type="text" id="customer" placeholder="例如：大里 昱昭"></label>
     <label>備註：<input type="text" id="note" placeholder="例如：急！／星期四到貨"></label>
-    <label>之前已出金額：<input type="number" id="previous-total" value="0" min="0" inputmode="numeric" pattern="[0-9]*"></label>
     <label>點擊產品品名會顯示圖片，點擊圖片會收回</label>
   </div>
 
@@ -237,8 +236,6 @@
     </table>
     <div class="order-summary">
       <div class="label">本次總計：</div><div class="value" id="sum-grand">0 元</div>
-      <div class="label">之前已出：</div><div class="value" id="sum-prev">0 元</div>
-      <div class="label">加總金額：</div><div class="value" id="sum-final">0 元</div>
       <div class="label">折抵金額（滿$1000折$100）：</div><div class="value" id="sum-discount">0 元</div>
       <div class="label">折抵後應付：</div><div class="value" id="sum-payable">0 元</div>
     </div>
@@ -246,7 +243,7 @@
   </div>
 
   <div class="sticky-bar">
-    <div class="sticky-row">加總金額（含已出）：<span id="grand-total">0</span> 元</div>
+    <div class="sticky-row">本次總計：<span id="grand-total">0</span> 元</div>
     <div class="sticky-row"><span class="discount-em" id="discount-info">目前折抵：$0</span></div>
     <div class="sticky-row" id="next-tier">已達折抵上限（$100） 還差：— 元</div>
     <div class="sticky-actions">
