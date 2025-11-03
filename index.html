@@ -242,13 +242,13 @@
       <div class="label">折抵金額（滿$1000折$100）：</div><div class="value" id="sum-discount">0 元</div>
       <div class="label">折抵後應付：</div><div class="value" id="sum-payable">0 元</div>
     </div>
-    <div class="order-discount" id="discount-banner">目前折抵：$0；距離下一次折$100 還差：— 元</div>
+    <div class="order-discount" id="discount-banner">目前折抵：$0；已達折抵上限（$100） 還差：— 元</div>
   </div>
 
   <div class="sticky-bar">
     <div class="sticky-row">加總金額（含已出）：<span id="grand-total">0</span> 元</div>
     <div class="sticky-row"><span class="discount-em" id="discount-info">目前折抵：$0</span></div>
-    <div class="sticky-row" id="next-tier">距離下一次折$100 還差：— 元</div>
+    <div class="sticky-row" id="next-tier">已達折抵上限（$100） 還差：— 元</div>
     <div class="sticky-actions">
       <button id="clear-btn">重新輸入</button>
       <button id="share-all-btn" class="primary">生成訂單並分享</button>
@@ -407,6 +407,12 @@
 
   // === 金額計算（滿千折百）===
   function calcDiscount(total){
+  return total >= 1000 ? 100 : 0;
+}
+
+/* 原本的多層折扣已停用 */
+function calcDiscount_old(total){
+
     if (total < 1000) return 0;
     return Math.floor(total / 1000) * 100;
   }
@@ -486,7 +492,7 @@
 
     const nextNeed = (Math.floor(data.final / 1000) + 1) * 1000 - data.final;
     nextTierEl.textContent = data.final >= 1000 ? 
-      `距離下一次折$100 還差：${nextNeed} 元` : `距離第一次折$100 還差：${Math.max(0, 1000 - data.final)} 元`;
+      `已達折抵上限（$100） 還差：${nextNeed} 元` : `距離第一次折$100 還差：${Math.max(0, 1000 - data.final)} 元`;
 
     metaDate.textContent = currentDateStr();
     metaCustomer.textContent = data.customer;
